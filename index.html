@@ -2,413 +2,628 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>FunLessons – Flashcards 2 (Corrected)</title>
+<title>FunLessons – English Game</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
-/* --- ESTILOS VISUALES --- */
-:root {
-    --primary: #ff7043;
-    --secondary: #ffca28;
-    --accent: #26a69a;
-    --bg-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-}
+/* --- ESTILOS GENERALES Y ANIMACIONES --- */
+body{margin:0;font-family:"Segoe UI",Tahoma,sans-serif;background:linear-gradient(135deg,#7b6cff,#00c6ff);min-height:100vh;padding:15px; user-select: none; overflow-x: hidden;}
+.app{max-width:800px;margin:auto;background:#fff;border-radius:22px;box-shadow:0 15px 40px rgba(0,0,0,.25);overflow:hidden; position: relative;}
 
-body {
-    margin: 0;
-    font-family: "Segoe UI", Tahoma, sans-serif;
-    background: var(--bg-gradient);
-    min-height: 100vh;
-    padding: 15px;
-    user-select: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+/* Animaciones */
+@keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } 100% { transform: translateX(0); } }
+.shake-anim { animation: shake 0.4s ease-in-out; border: 2px solid #ef5350 !important; }
 
-.app {
-    width: 100%;
-    max-width: 600px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 25px;
-    box-shadow: 0 10px 30px rgba(255, 112, 67, 0.3);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
+header{background:linear-gradient(135deg,#5e35b1,#1e88e5);color:#fff;padding:15px;text-align:center;}
+.logo{font-size:2rem;font-weight:900;letter-spacing:1px; margin:0;}
 
-header {
-    background: var(--primary);
-    color: #fff;
-    padding: 15px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-.logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; margin: 0; }
+.category-control { background: #f0f2f5; padding: 10px; text-align: center; border-bottom: 1px solid #ddd; position: relative; }
+select { padding: 8px 15px; border-radius: 20px; border: 2px solid #3f51b5; font-size: 1rem; font-weight: bold; color: #3f51b5; outline: none; cursor: pointer; }
 
-.controls-top {
-    padding: 15px;
-    background: #fff;
-    border-bottom: 2px solid #eee;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    align-items: center;
+/* Panel de selección múltiple */
+.multi-select-panel {
+    position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+    background: white; border: 3px solid #3f51b5; border-radius: 15px;
+    padding: 15px; z-index: 100; width: 90%; max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
-select {
-    padding: 10px 20px;
-    border-radius: 25px;
-    border: 2px solid var(--accent);
-    font-size: 1rem;
-    font-weight: bold;
-    color: var(--accent);
-    outline: none;
-    cursor: pointer;
-    background: #e0f2f1;
+.topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; text-align: left; }
+.topic-item { display: flex; align-items: center; gap: 8px; font-weight: bold; color: #333; cursor: pointer; padding: 5px; border-radius: 5px; transition: background 0.2s; }
+.topic-item:hover { background: #f0f2f5; }
+.topic-item input { width: 18px; height: 18px; cursor: pointer; }
+.start-mix-btn { background: #4caf50; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+.stats-bar { padding: 15px; background: #fff; }
+.progress-container { height: 12px; background: #e0e0e0; border-radius: 6px; overflow: hidden; margin-bottom: 10px; position: relative; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); width: 0%; transition: width 0.5s ease; }
+.stats-text { display: flex; justify-content: space-between; font-weight: bold; color: #555; font-size: 0.9rem; }
+.score-badge { background: #ffca28; color: #333; padding: 2px 8px; border-radius: 10px; }
+
+.exercise{padding:20px; text-align:center; min-height: 400px; display:flex; flex-direction:column; align-items:center; }
+
+.img-container {
+    height: 180px; width: 100%; display: flex; align-items: center; justify-content: center;
+    margin: 5px auto 15px; background: #fff; border-radius: 12px; padding: 5px;
+    transition: transform 0.3s;
 }
+.exercise .emoji { font-size: 6rem; }
+.exercise img { max-height: 150px; object-fit: contain; }
 
-/* --- ESCENARIO DE LA FLASHCARD --- */
-.scene {
-    width: 100%;
-    height: 350px;
-    perspective: 1000px;
-    margin: 20px 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+input{padding:12px;font-size:1.4rem;width:90%;max-width:300px;margin:10px auto;border-radius:12px;border:3px solid #ccc;text-align:center; display:block; outline: none; transition: 0.3s; text-transform: uppercase;}
+input:focus{border-color: #3f51b5; box-shadow: 0 0 0 4px rgba(63, 81, 181, 0.2);}
 
-.card {
-    width: 280px;
-    height: 320px;
-    position: relative;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-    cursor: pointer;
-}
+.scramble-area { width: 100%; max-width: 500px; margin-top: 5px; }
+.answer-slots { min-height: 60px; background: #f9f9f9; border-bottom: 3px solid #ccc; display: flex; justify-content: center; gap: 6px; padding: 10px; flex-wrap: wrap; border-radius: 10px; margin-bottom: 15px; }
+.letter-bank { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; min-height: 60px; }
+.tile { width: 42px; height: 42px; background: #fff; border: 2px solid #3f51b5; border-bottom-width: 4px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; color: #3f51b5; cursor: pointer; transition: 0.1s; touch-action: manipulation; }
+.tile:active { transform: translateY(3px); border-bottom-width: 1px; }
 
-.card.is-flipped { transform: rotateY(180deg); }
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; margin-top: 10px; }
+.option-btn { background: #fff; color: #333; border: 2px solid #c5cae9; padding: 12px; font-size: 1rem; border-radius: 12px; cursor: pointer; font-weight: bold; min-height: 50px; box-shadow: 0 3px 0 #c5cae9; }
+.option-btn:active { transform: translateY(3px); box-shadow: none; }
+.image-option { height: 100px; background: white; border: 2px solid #eee; border-radius: 12px; padding: 5px; cursor: pointer; display:flex; align-items:center; justify-content:center; box-shadow: 0 3px 0 #eee; }
+.image-option:active { transform: translateY(3px); box-shadow: none; }
+.image-option img { max-height: 80px; max-width: 80px; object-fit: contain; }
 
-.card-face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    border: 4px solid #fff;
-    padding: 10px;
-    box-sizing: border-box;
-}
+.feedback-area { margin-top: auto; width: 100%; }
+.feedback{font-size:1.3rem;font-weight:bold;margin:10px 0;min-height:1.4em;}
+.buttons{display:flex;justify-content:center;gap:8px;flex-wrap:wrap; width:100%; margin-top: 10px;}
+button.action-btn{border:none;padding:10px 16px;border-radius:10px;font-size:1rem;cursor:pointer; font-weight: bold; color: white; box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: 0.1s;}
+button.action-btn:active { transform: translateY(3px); box-shadow: none; }
 
-.card-face.front { background: #fff; border-color: var(--secondary); }
-.card-face.back { background: var(--accent); color: white;
-transform: rotateY(180deg); border-color: var(--accent); }
+.btn-check{background:#4caf50;} 
+.btn-skip{background:#ef5350;}      
+.btn-hint{background:#ffca28; color: #333;}   
+.btn-full{background:#607d8b;}
 
-.emoji-img { 
-    width: 100%;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 8rem; 
-    line-height: 1;
-}
+.hidden { display: none !important; }
 
-.emoji-img img {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
-}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center; z-index: 2000; padding: 10px;}
+.modal-content{background:#fff;padding:20px;border-radius:20px;max-width:350px;width:100%; text-align: center;}
+.close-btn { margin-top: 20px; width: 100%; padding: 12px; background: #3f51b5; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
-.word-text { font-size: 2.5rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; text-align: center;
-}
-.tap-hint { font-size: 0.9rem; color: #aaa; margin-top: 10px; opacity: 0.7; }
-.tap-hint.white { color: rgba(255,255,255,0.8);
-}
-
-.nav-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 30px;
-    background: #f9f9f9;
-}
-
-.nav-btn {
-    background: white;
-    border: 2px solid var(--primary);
-    color: var(--primary);
-    width: 50px; height: 50px;
-    border-radius: 50%;
-    font-size: 1.5rem;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-}
-
-.nav-btn:disabled { border-color: #ccc; color: #ccc; }
-.counter { font-size: 1.1rem;
-font-weight: bold; color: #777; background: #eee; padding: 5px 15px; border-radius: 15px; }
-
-.sound-btn-small {
-    background: rgba(255,255,255,0.2);
-    border: 2px solid #fff;
-    color: #fff;
-    border-radius: 50%;
-    width: 45px; height: 45px;
-    cursor: pointer;
-    font-size: 1.2rem;
-}
+.confetti { position: fixed; width: 10px; height: 10px; z-index: 9999; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 </style>
+
 </head>
 <body>
 
-<div class="app">
-    <header><div class="logo">⚡ Flashcards 3 <span>🇬🇧</span></div></header>
+<div class="app" id="gameApp">
+<header>
+  <div class="logo">📒 PD GAME 3 <span>🇬🇧</span></div>
+</header>
 
-    <div class="controls-top">
-        <label style="font-weight:bold; color:#666;">Topic:</label>
-        <select id="categorySelect" onchange="changeCategory()">
-            <option value="ALL">🌟 Mix (All)</option>
-            <option value="DAYS">🗓️ Days</option>
-            <option value="ROUTINES">⏰ Routines</option>
-            <option value="TRANSPORT">🚗 Transport</option>
-            <option value="SUBJECTS">📚 Subjects</option>
-            <option value="TOWN">🏙️ Town</option>
-            <option value="ANIMALS">🦁 Animals</option>
-            <option value="ANIMALS_BODY">🦴 Animals body</option>
-            <option value="ACTIONS">🏃 Actions</option>
-            <option value="HOBBIES">🎨 Hobbies</option>
-            <option value="FOOD">🍎 Food</option>
-        </select>
+<div class="category-control">
+  <select id="categorySelect" onchange="handleCategoryChange()">
+      <option value="ALL">🌟 All Topics</option>
+      <option value="MULTI">🎯 Mixed Topics</option>
+      <option value="DAYS">🗓️ Days</option>
+                <option value="ROUTINES">⏰ Routines</option>
+                <option value="TRANSPORT">🚗 Transport</option>
+                <option value="SUBJECTS">📚 Subjects</option>
+                <option value="TOWN">🏙️ Town</option>
+                <option value="ANIMALS">🦁 Animals</option>
+                <option value="ANIMALS_BODY">🦴 Animals body</option>
+                <option value="ACTIONS">🏃 Actions</option>
+                <option value="HOBBIES">🎨 Hobbies</option>
+                <option value="FOOD">🍎 Food</option>
+  </select>
+
+  <div id="multiPanel" class="multi-select-panel hidden">
+      <h3>Select Topics:</h3>
+      <div id="topicGrid" class="topic-grid"></div>
+      <button class="start-mix-btn" onclick="applyMultiSelect()">Start Mix 🚀</button>
+  </div>
+</div>
+
+<div class="stats-bar">
+    <div class="progress-container">
+        <div class="progress-fill" id="progressFill"></div>
     </div>
-
-    <div class="scene">
-        <div class="card" id="flashcard" onclick="flipCard()">
-            <div class="card-face front">
-                <div class="emoji-img" id="cardImg">❓</div>
-                <div class="tap-hint">👆 Tap to flip</div>
-            </div>
-            <div class="card-face back">
-                <div class="word-text" id="cardWord">WORD</div>
-                <button class="sound-btn-small" onclick="event.stopPropagation(); playCurrentAudio()">🔊</button>
-                <div class="tap-hint white">👆 Tap to flip back</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="nav-controls">
-        <button class="nav-btn" id="prevBtn" onclick="prevCard()">⬅️</button>
-        <div class="counter" id="counterDisplay">1 / 10</div>
-        <button class="nav-btn" id="nextBtn" onclick="nextCard()">➡️</button>
+    <div class="stats-text">
+        <span>Level <span id="statLevel">1</span></span>
+        <span class="score-badge">Points: <span id="statPoints">0</span></span>
+        <span>Streak 🔥 <span id="statStreak">0</span></span>
     </div>
 </div>
 
+<div class="exercise">
+  <h3 id="question">Loading...</h3>
+  
+  <div class="img-container hidden" id="mainImage"></div>
+  
+  <input id="answer" placeholder="Type answer..." autocomplete="off" spellcheck="false" class="hidden">
+  
+  <div class="scramble-area hidden" id="scrambleArea">
+    <div class="answer-slots" id="answerSlots"></div>
+    <div class="letter-bank" id="letterBank"></div>
+  </div>
+
+  <div class="options-grid hidden" id="optionsArea"></div>
+  
+  <div class="feedback-area">
+      <div class="feedback" id="feedback"></div>
+      <div class="buttons">
+        <button class="action-btn btn-check hidden" id="checkBtn" onclick="checkAnswer()">✅ Check</button>
+        <button class="action-btn btn-skip" id="skipBtn" onclick="skip()">⏭️ Skip</button>
+        <button class="action-btn btn-hint" id="hintBtn" onclick="giveHint()">💡 Hint</button>
+        <button class="action-btn btn-hint" id="speakBtn" onclick="speakCurrent()">🔊</button>
+        <button class="action-btn btn-full" id="fullBtn" onclick="toggleFullscreen()">⛶ Full</button> 
+        <button class="action-btn btn-check hidden" id="playAgainBtn" onclick="resetGameAction()" style="background:#3f51b5; padding: 15px 30px; font-size: 1.2rem;">🔄 Play Again</button>
+      </div>
+  </div>
+</div>
+</div>
+
+<div class="modal" id="teacherModal">
+    <div class="modal-content">
+      <h2>Teacher Panel</h2>
+      <p>Total Correct: <span id="tCorrect"></span></p>
+      <p>Max Streak: <span id="tStreak"></span></p>
+      <button class="close-btn" style="background:#ffca28; color:#333; margin-top:10px" onclick="resetGameAction()">Reset Progress</button>
+      <button class="close-btn" onclick="document.getElementById('teacherModal').style.display='none'">Close</button>
+    </div>
+</div>
+
+<div style="position:fixed; top:0; left:0; width:50px; height:50px; z-index:1000;" onclick="handleSecretClick()"></div>
+
 <script>
+/**************** VOCABULARIO ****************/
 const vocab = [
-    // DAYS
-    {en:"MONDAY", img:"Monday.png", cat:"DAYS", isImage: true},
-    {en:"TUESDAY", img:"Tuesday.png", cat:"DAYS", isImage: true},
-    {en:"WEDNESDAY", img:"Wednesday.png", cat:"DAYS", isImage: true},
-    {en:"THURSDAY", img:"Thursday.png", cat:"DAYS", isImage: true},
-    {en:"FRIDAY", img:"Friday.png", cat:"DAYS", isImage: true},
-    {en:"SATURDAY", img:"Saturday.png", cat:"DAYS", isImage: true},
+  {en:"MONDAY", img:"Monday.png", cat:"DAYS", isImage: true}, {en:"TUESDAY", img:"Tuesday.png", cat:"DAYS", isImage: true},
+    {en:"WEDNESDAY", img:"Wednesday.png", cat:"DAYS", isImage: true}, {en:"THURSDAY", img:"Thursday.png", cat:"DAYS", isImage: true},
+    {en:"FRIDAY", img:"Friday.png", cat:"DAYS", isImage: true}, {en:"SATURDAY", img:"Saturday.png", cat:"DAYS", isImage: true},
     {en:"SUNDAY", img:"Sunday.png", cat:"DAYS", isImage: true},
-
-    // ROUTINES
-    {en:"GET UP", img:"get up.png", cat:"ROUTINES", isImage: true},
-    {en:"GO HOME", img:"go home.png", cat:"ROUTINES", isImage: true},
-    {en:"GO TO BED", img:"go to bed.png", cat:"ROUTINES", isImage: true},
-    {en:"GO TO SCHOOL", img:"go to school.png", cat:"ROUTINES", isImage: true},
-    {en:"HAVE A SHOWER", img:"have a shower.png", cat:"ROUTINES", isImage: true},
-    {en:"HAVE BREAKFAST", img:"have breakfast.png", cat:"ROUTINES", isImage: true},
-    {en:"HAVE DINNER", img:"have dinner.png", cat:"ROUTINES", isImage: true},
-    {en:"HAVE LUNCH", img:"have lunch.png", cat:"ROUTINES", isImage: true},
-
-    // TRANSPORT
-    {en:"BIKE", img:"🚲", cat:"TRANSPORT"},
-    {en:"CAR", img:"🚗", cat:"TRANSPORT"},
-    {en:"BUS", img:"🚌", cat:"TRANSPORT"},
-    {en:"TRAIN", img:"🚆", cat:"TRANSPORT"},
-    {en:"TAXI", img:"🚕", cat:"TRANSPORT"},
-    {en:"PLANE", img:"✈️", cat:"TRANSPORT"},
-    {en:"HELICOPTER", img:"🚁", cat:"TRANSPORT"},
-
-    // SUBJECTS
-    {en:"ART", img:"🎨", cat:"SUBJECTS"},
-    {en:"ENGLISH", img:"english.png", cat:"SUBJECTS", isImage: true},
-    {en:"IT", img:"💻", cat:"SUBJECTS"},
-    {en:"MATHS", img:"🔢", cat:"SUBJECTS"},
-    {en:"MUSIC", img:"🎵", cat:"SUBJECTS"},
-    {en:"PE", img:"⚽", cat:"SUBJECTS"},
-    {en:"SCIENCE", img:"🧪", cat:"SUBJECTS"},
-    {en:"SPANISH", img:"spanish.png", cat:"SUBJECTS", isImage: true},
-
-    // TOWN
-    {en:"CITY", img:"city.png", cat:"TOWN", isImage: true},
-    {en:"VILLAGE", img:"village.png", cat:"TOWN", isImage: true},
-    {en:"TOWN", img:"town.png", cat:"TOWN", isImage: true},
-    {en:"POST OFFICE", img:"post office.png", cat:"TOWN", isImage: true},
-    {en:"PARK", img:"park.png", cat:"TOWN", isImage: true},
-    {en:"HOUSE", img:"🏠", cat:"TOWN"},
-    {en:"CINEMA", img:"🎬", cat:"TOWN"},
-    {en:"FIRE STATION", img:"🚒", cat:"TOWN"},
-    {en:"MUSEUM", img:"🏛️", cat:"TOWN"},
-    {en:"HOSPITAL", img:"🏥", cat:"TOWN"},
-    {en:"SHOPPING CENTRE", img:"🛍️", cat:"TOWN"},
-    {en:"SWIMMING POOL", img:"🏊", cat:"TOWN"},
-    {en:"TRAIN STATION", img:"🚉", cat:"TOWN"},
-    {en:"ZOO", img:"🦒", cat:"TOWN"},
-    {en:"SCHOOL", img:"🏫", cat:"TOWN"},
-    {en:"SUPERMARKET", img:"🛒", cat:"TOWN"},
-    {en:"HOTEL", img:"🏨", cat:"TOWN"},
-    {en:"BEACH", img:"🏖️", cat:"TOWN"},
-    {en:"LIBRARY", img:"📚", cat:"TOWN"},
-
-    // ANIMALS
-    {en:"OSTRICH", img:"ostrich.png", cat:"ANIMALS", isImage: true},
-    {en:"CROCODILE", img:"🐊", cat:"ANIMALS"},
-    {en:"ELEPHANT", img:"🐘", cat:"ANIMALS"},
-    {en:"FLAMINGO", img:"🦩", cat:"ANIMALS"},
-    {en:"KANGAROO", img:"🦘", cat:"ANIMALS"},
-    {en:"LION", img:"🦁", cat:"ANIMALS"},
-    {en:"MONKEY", img:"🐒", cat:"ANIMALS"},
-    {en:"TIGER", img:"🐅", cat:"ANIMALS"},
-
-    // ANIMALS BODY
-    {en:"BEAK", img:"beak.png", cat:"ANIMALS_BODY", isImage: true},
-    {en:"CLAWS", img:"claws.png", cat:"ANIMALS_BODY", isImage: true},
-    {en:"FUR", img:"fur.png", cat:"ANIMALS_BODY", isImage: true},
-    {en:"TAIL", img:"tail.png", cat:"ANIMALS_BODY", isImage: true},
-    {en:"TEETH", img:"teeth.png", cat:"ANIMALS_BODY", isImage: true},
-    {en:"WINGS", img:"wing.png", cat:"ANIMALS_BODY", isImage: true},
-    {en:"LEGS", img:"legs.png", cat:"ANIMALS_BODY", isImage: true},
-    {en:"EARS", img:"ears.png", cat:"ANIMALS_BODY", isImage: true},
-
-    // ACTIONS
-    {en:"EAT", img:"eat.png", cat:"ACTIONS", isImage: true},
-    {en:"DRINK", img:"drink.png", cat:"ACTIONS", isImage: true},
-    {en:"JUMP", img:"jump.png", cat:"ACTIONS", isImage: true},
-    {en:"FLY", img:"fly.png", cat:"ACTIONS", isImage: true},
-    {en:"CLIMB", img:"🧗", cat:"ACTIONS"},
-    {en:"SWIM", img:"🏊", cat:"ACTIONS"},
-    {en:"RUN", img:"🏃", cat:"ACTIONS"},
-    {en:"WALK", img:"🚶", cat:"ACTIONS"},
-
-    // HOBBIES
+    {en:"GET UP", img:"get up.png", cat:"ROUTINES", isImage: true}, {en:"GO HOME", img:"go home.png", cat:"ROUTINES", isImage: true},
+    {en:"GO TO BED", img:"go to bed.png", cat:"ROUTINES", isImage: true}, {en:"GO TO SCHOOL", img:"go to school.png", cat:"ROUTINES", isImage: true},
+    {en:"HAVE A SHOWER", img:"have a shower.png", cat:"ROUTINES", isImage: true}, {en:"HAVE BREAKFAST", img:"have breakfast.png", cat:"ROUTINES", isImage: true},
+    {en:"HAVE DINNER", img:"have dinner.png", cat:"ROUTINES", isImage: true}, {en:"HAVE LUNCH", img:"have lunch.png", cat:"ROUTINES", isImage: true},
+    {en:"BIKE", img:"🚲", cat:"TRANSPORT"}, {en:"CAR", img:"🚗", cat:"TRANSPORT"}, {en:"BUS", img:"🚌", cat:"TRANSPORT"},
+    {en:"TRAIN", img:"🚆", cat:"TRANSPORT"}, {en:"TAXI", img:"🚕", cat:"TRANSPORT"}, {en:"PLANE", img:"✈️", cat:"TRANSPORT"}, {en:"HELICOPTER", img:"🚁", cat:"TRANSPORT"},
+    {en:"ART", img:"🎨", cat:"SUBJECTS"}, {en:"ENGLISH", img:"english2.png", cat:"SUBJECTS", isImage: true}, {en:"IT", img:"💻", cat:"SUBJECTS"},
+    {en:"MATHS", img:"🔢", cat:"SUBJECTS"}, {en:"MUSIC", img:"🎵", cat:"SUBJECTS"}, {en:"PE", img:"⚽", cat:"SUBJECTS"},
+    {en:"SCIENCE", img:"🧪", cat:"SUBJECTS"}, {en:"SPANISH", img:"spanish.png", cat:"SUBJECTS", isImage: true},
+    {en:"CITY", img:"city.png", cat:"TOWN", isImage: true}, {en:"VILLAGE", img:"village.png", cat:"TOWN", isImage: true},
+    {en:"TOWN", img:"town.png", cat:"TOWN", isImage: true}, {en:"POST OFFICE", img:"post office.png", cat:"TOWN", isImage: true},
+    {en:"PARK", img:"park.png", cat:"TOWN", isImage: true}, {en:"HOUSE", img:"🏠", cat:"TOWN"},
+    {en:"CINEMA", img:"🎬", cat:"TOWN"}, {en:"FIRE STATION", img:"🚒", cat:"TOWN"}, {en:"MUSEUM", img:"🏛️", cat:"TOWN"},
+    {en:"HOSPITAL", img:"🏥", cat:"TOWN"}, {en:"SHOPPING CENTRE", img:"🛍️", cat:"TOWN"}, {en:"SWIMMING POOL", img:"🏊", cat:"TOWN"},
+    {en:"TRAIN STATION", img:"🚉", cat:"TOWN"}, {en:"ZOO", img:"🦒", cat:"TOWN"}, {en:"SCHOOL", img:"🏫", cat:"TOWN"},
+    {en:"SUPERMARKET", img:"🛒", cat:"TOWN"}, {en:"HOTEL", img:"🏨", cat:"TOWN"}, {en:"BEACH", img:"🏖️", cat:"TOWN"}, {en:"LIBRARY", img:"📚", cat:"TOWN"},
+    {en:"OSTRICH", img:"ostrich.png", cat:"ANIMALS", isImage: true}, {en:"CROCODILE", img:"🐊", cat:"ANIMALS"},
+    {en:"ELEPHANT", img:"🐘", cat:"ANIMALS"}, {en:"FLAMINGO", img:"🦩", cat:"ANIMALS"}, {en:"KANGAROO", img:"🦘", cat:"ANIMALS"},
+    {en:"LION", img:"🦁", cat:"ANIMALS"}, {en:"MONKEY", img:"🐒", cat:"ANIMALS"}, {en:"TIGER", img:"🐅", cat:"ANIMALS"},
+    {en:"BEAK", img:"beak.png", cat:"ANIMALS_BODY", isImage: true}, {en:"CLAWS", img:"claws.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"FUR", img:"fur.png", cat:"ANIMALS_BODY", isImage: true}, {en:"TAIL", img:"tail.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"TEETH", img:"teeth.png", cat:"ANIMALS_BODY", isImage: true}, {en:"WINGS", img:"wing.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"LEGS", img:"legs.png", cat:"ANIMALS_BODY", isImage: true}, {en:"EARS", img:"ears.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"EAT", img:"eat.png", cat:"ACTIONS", isImage: true}, {en:"DRINK", img:"drink.png", cat:"ACTIONS", isImage: true},
+    {en:"JUMP", img:"jump.png", cat:"ACTIONS", isImage: true}, {en:"FLY", img:"fly.png", cat:"ACTIONS", isImage: true},
+    {en:"CLIMB", img:"🧗", cat:"ACTIONS"}, {en:"SWIM", img:"🏊", cat:"ACTIONS"}, {en:"RUN", img:"🏃", cat:"ACTIONS"}, {en:"WALK", img:"🚶", cat:"ACTIONS"},
     {en:"PLAYING THE RECORDER", img:"playing the recorder.png", cat:"HOBBIES", isImage: true},
     {en:"READING COMICS", img:"reading comics.png", cat:"HOBBIES", isImage: true},
     {en:"USING THE INTERNET", img:"using internet.png", cat:"HOBBIES", isImage: true},
     {en:"MAKING MODELS", img:"making models.png", cat:"HOBBIES", isImage: true},
-    {en:"DOING EXERCISE", img:"🏋️", cat:"HOBBIES"},
-    {en:"GOING TO THE PARK", img:"🌳", cat:"HOBBIES"},
-    {en:"LISTENING TO MUSIC", img:"🎧", cat:"HOBBIES"},
-    {en:"ROLLERBLADING", img:"🛼", cat:"HOBBIES"},
-    {en:"WATCHING TV", img:"📺", cat:"HOBBIES"},
-    {en:"DANCING", img:"💃", cat:"HOBBIES"},
-    {en:"DOING KARATE", img:"🥋", cat:"HOBBIES"},
-    {en:"JUGGLING", img:"🤹", cat:"HOBBIES"},
-    {en:"PAINTING", img:"🎨", cat:"HOBBIES"},
-    {en:"PLAYING THE GUITAR", img:"🎸", cat:"HOBBIES"},
-    {en:"RIDING A BIKE", img:"🚲", cat:"HOBBIES"},
-    {en:"SINGING", img:"🎤", cat:"HOBBIES"},
+    {en:"DOING EXERCISE", img:"🏋️", cat:"HOBBIES"}, {en:"GOING TO THE PARK", img:"🌳", cat:"HOBBIES"},
+    {en:"LISTENING TO MUSIC", img:"🎧", cat:"HOBBIES"}, {en:"ROLLERBLADING", img:"🛼", cat:"HOBBIES"},
+    {en:"WATCHING TV", img:"📺", cat:"HOBBIES"}, {en:"DANCING", img:"💃", cat:"HOBBIES"},
+    {en:"DOING KARATE", img:"🥋", cat:"HOBBIES"}, {en:"JUGGLING", img:"🤹", cat:"HOBBIES"},
+    {en:"PAINTING", img:"🎨", cat:"HOBBIES"}, {en:"PLAYING THE GUITAR", img:"🎸", cat:"HOBBIES"},
+    {en:"RIDING A BIKE", img:"🚲", cat:"HOBBIES"}, {en:"SINGING", img:"🎤", cat:"HOBBIES"},
+    {en:"YOGURT", img:"yogurt.png", cat:"FOOD", isImage: true}, {en:"BREAD", img:"🍞", cat:"FOOD"},
+    {en:"CEREAL", img:"cereal.png", cat:"FOOD", isImage: true}, {en:"EGGS", img:"eggs.png", cat:"FOOD", isImage: true},
+    {en:"HAM", img:"ham.png", cat:"FOOD", isImage: true}, {en:"RICE", img:"🍚", cat:"FOOD"},
+    {en:"SAUSAGES", img:"sausages.png", cat:"FOOD", isImage: true}, {en:"SPAGHETTI", img:"🍝", cat:"FOOD"},
+    {en:"VEGETABLES", img:"vegetables.png", cat:"FOOD", isImage: true}, {en:"BROCCOLI", img:"🥦", cat:"FOOD"},
+    {en:"CAKE", img:"🍰", cat:"FOOD"}, {en:"CHEESE", img:"🧀", cat:"FOOD"},
+    {en:"CHICKEN", img:"chicken.png", cat:"FOOD", isImage: true}, {en:"FISH", img:"🐟", cat:"FOOD"},
+    {en:"FRUIT", img:"🍎", cat:"FOOD"}, {en:"MEAT", img:"🥩", cat:"FOOD"}, {en:"SALAD", img:"🥗", cat:"FOOD"},
+    {en:"SOUP", img:"soup.png", cat:"FOOD", isImage: true}, {en:"APPLE", img:"🍎", cat:"FOOD"},
+    {en:"BANANA", img:"🍌", cat:"FOOD"}, {en:"ORANGE", img:"🍊", cat:"FOOD"}, {en:"PEAR", img:"🍐", cat:"FOOD"},
+    {en:"STRAWBERRY", img:"🍓", cat:"FOOD"}, {en:"JUICE", img:"🧃", cat:"FOOD"}, {en:"MILK", img:"🥛", cat:"FOOD"},
+    {en:"WATER", img:"💧", cat:"FOOD"}, {en:"CARROTS", img:"🥕", cat:"FOOD"},
+    {en:"CAULIFLOWER", img:"cauliflower.png", cat:"FOOD", isImage: true}, {en:"PEAS", img:"🫛", cat:"FOOD"}
 
-    // FOOD
-    {en:"YOGURT", img:"yogurt.png", cat:"FOOD", isImage: true},
-    {en:"BREAD", img:"🍞", cat:"FOOD"},
-    {en:"CEREAL", img:"cereal.png", cat:"FOOD", isImage: true},
-    {en:"EGGS", img:"eggs.png", cat:"FOOD", isImage: true},
-    {en:"HAM", img:"ham.png", cat:"FOOD", isImage: true},
-    {en:"RICE", img:"🍚", cat:"FOOD"},
-    {en:"SAUSAGES", img:"sausages.png", cat:"FOOD", isImage: true},
-    {en:"SPAGHETTI", img:"🍝", cat:"FOOD"},
-    {en:"VEGETABLES", img:"vegetables.png", cat:"FOOD", isImage: true},
-    {en:"BROCCOLI", img:"🥦", cat:"FOOD"},
-    {en:"CAKE", img:"🍰", cat:"FOOD"},
-    {en:"CHEESE", img:"🧀", cat:"FOOD"},
-    {en:"CHICKEN", img:"chicken.png", cat:"FOOD", isImage: true},
-    {en:"FISH", img:"🐟", cat:"FOOD"},
-    {en:"FRUIT", img:"🍎", cat:"FOOD"},
-    {en:"MEAT", img:"🥩", cat:"FOOD"},
-    {en:"SALAD", img:"🥗", cat:"FOOD"},
-    {en:"SOUP", img:"soup.png", cat:"FOOD", isImage: true},
-    {en:"APPLE", img:"🍎", cat:"FOOD"},
-    {en:"BANANA", img:"🍌", cat:"FOOD"},
-    {en:"ORANGE", img:"🍊", cat:"FOOD"},
-    {en:"PEAR", img:"🍐", cat:"FOOD"},
-    {en:"STRAWBERRY", img:"🍓", cat:"FOOD"},
-    {en:"JUICE", img:"🧃", cat:"FOOD"},
-    {en:"MILK", img:"🥛", cat:"FOOD"},
-    {en:"WATER", img:"💧", cat:"FOOD"},
-    {en:"CARROTS", img:"🥕", cat:"FOOD"},
-    {en:"CAULIFLOWER", img:"cauliflower.png", cat:"FOOD", isImage: true},
-    {en:"PEAS", img:"🫛", cat:"FOOD"}
 ];
 
-let currentList = [], currentIndex = 0, isFlipped = false;
+/**************** ESTADO ****************/
+let state = JSON.parse(localStorage.getItem("funlessons_v11")) || { level:1, streak:0, correct:0, points:0 };
+let current = null, mode = "";
+let currentList = vocab; 
+let scrambleAnswer = [];
+let zapCurrentProgress = "";
+
 const ui = {
-    card: document.getElementById("flashcard"),
-    img: document.getElementById("cardImg"),
-    word: document.getElementById("cardWord"),
-    counter: document.getElementById("counterDisplay"),
-    prevBtn: document.getElementById("prevBtn"),
-    nextBtn: document.getElementById("nextBtn")
+  q: document.getElementById("question"),
+  img: document.getElementById("mainImage"),
+  input: document.getElementById("answer"),
+  scrambleArea: document.getElementById("scrambleArea"),
+  slots: document.getElementById("answerSlots"),
+  bank: document.getElementById("letterBank"),
+  options: document.getElementById("optionsArea"),
+  feedback: document.getElementById("feedback"),
+  checkBtn: document.getElementById("checkBtn"),
+  progressFill: document.getElementById("progressFill"),
+  app: document.querySelector(".app"),
+  playAgainBtn: document.getElementById("playAgainBtn"),
+  multiPanel: document.getElementById("multiPanel"),
+  topicGrid: document.getElementById("topicGrid")
 };
 
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
+ui.input.addEventListener("keypress", (e) => { if(e.key === "Enter") checkAnswer(); });
 
-function changeCategory() {
-    const cat = document.getElementById("categorySelect").value;
-    let tempList = (cat === "ALL") ? [...vocab] : vocab.filter(item => item.cat === cat);
-    currentList = shuffleArray(tempList);
-    currentIndex = 0;
-    resetCardFace();
-    updateUI();
-}
+/**************** MOTOR DE SELECCIÓN ****************/
 
-function updateUI() {
-    if(currentList.length === 0) return;
-    const item = currentList[currentIndex];
-    if (item.isImage) {
-        ui.img.innerHTML = `<img src="${item.img}" alt="${item.en}">`;
+function handleCategoryChange() {
+    const val = document.getElementById("categorySelect").value;
+    if (val === "MULTI") {
+        showMultiPanel();
     } else {
-        ui.img.innerHTML = item.img;
+        ui.multiPanel.classList.add("hidden");
+        if(val === "ALL") currentList = vocab;
+        else currentList = vocab.filter(item => item.cat === val);
+        next();
     }
-    ui.word.textContent = item.en;
-    ui.counter.textContent = `${currentIndex + 1} / ${currentList.length}`;
-    ui.prevBtn.disabled = (currentIndex === 0);
-    ui.nextBtn.disabled = (currentIndex === currentList.length - 1);
 }
 
-function flipCard() {
-    isFlipped = !isFlipped;
-    ui.card.classList.toggle("is-flipped", isFlipped);
-    if(isFlipped) setTimeout(playCurrentAudio, 200);
+function showMultiPanel() {
+    ui.multiPanel.classList.remove("hidden");
+    ui.topicGrid.innerHTML = "";
+    const catIcons = { "CALENDAR": "🗓️", "ROUTINES": "⏰", "TRANSPORT": "🚗", "SUBJECTS": "📚", "TOWN": "🏙️", "ANIMALS": "🦁", "ANIMALS BODY": "🦴", "ACTIONS": "🏃", "HOBBIES": "🎨", "FOOD": "🍎" };
+    const cats = [...new Set(vocab.map(v => v.cat))];
+    cats.forEach(cat => {
+        const label = document.createElement("label");
+        label.className = "topic-item";
+        const icon = catIcons[cat] || "🌟";
+        label.innerHTML = `<input type="checkbox" value="${cat}"> ${icon} ${cat}`;
+        ui.topicGrid.appendChild(label);
+    });
 }
 
-function resetCardFace() { isFlipped = false; ui.card.classList.remove("is-flipped"); }
-function nextCard() { if(currentIndex < currentList.length - 1) { currentIndex++; resetCardFace(); setTimeout(updateUI, 150); } }
-function prevCard() { if(currentIndex > 0) { currentIndex--; resetCardFace(); setTimeout(updateUI, 150); } }
-
-function playCurrentAudio() {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentList[currentIndex].en);
-    utterance.lang = "en-GB"; utterance.rate = 0.9;
-    window.speechSynthesis.speak(utterance);
+function applyMultiSelect() {
+    const selected = Array.from(ui.topicGrid.querySelectorAll('input:checked')).map(i => i.value);
+    if(selected.length === 0) { alert("Select at least one topic!"); return; }
+    currentList = vocab.filter(item => selected.includes(item.cat));
+    ui.multiPanel.classList.add("hidden"); 
+    next();
 }
 
-changeCategory();
+/**************** MOTOR DE JUEGO ****************/
+
+function next() {
+  if(state.points >= 500) {
+      finishGame();
+      return;
+  }
+  resetUI();
+  updateStats();
+  
+  current = currentList[Math.floor(Math.random() * currentList.length)];
+  
+  const weightedModes = [
+    "WRITE_IMG", "TRANSLATE", "DICTATION",
+    "SCRAMBLE", "SCRAMBLE", "SCRAMBLE",
+    "CHOOSE_IMG", "CHOOSE_IMG", "CHOOSE_IMG",
+    "LISTEN_MATCH", "LISTEN_MATCH", "LISTEN_MATCH",
+    "TRUE_FALSE", "TRUE_FALSE", "TRUE_FALSE",
+    "ODD_ONE_OUT", "ODD_ONE_OUT", "ODD_ONE_OUT",
+    "VOWEL_ZAP", "VOWEL_ZAP", "VOWEL_ZAP"
+  ];
+  
+  mode = weightedModes[Math.floor(Math.random() * weightedModes.length)];
+
+  switch(mode) {
+    case "WRITE_IMG":
+      ui.q.textContent = "What is this?";
+      showImage(current.img);
+      ui.input.classList.remove("hidden");
+      ui.checkBtn.classList.remove("hidden");
+      break;
+    case "TRANSLATE":
+      ui.q.textContent = `Translate: "${current.es}"`;
+      ui.input.classList.remove("hidden");
+      ui.checkBtn.classList.remove("hidden");
+      break;
+    case "SCRAMBLE":
+      ui.q.textContent = "Order the letters:";
+      showImage(current.img);
+      setupScramble(current.en);
+      break;
+    case "CHOOSE_IMG":
+      ui.q.textContent = "Choose the word:";
+      showImage(current.img);
+      generateOptions(current, "text");
+      break;
+    case "LISTEN_MATCH":
+      ui.q.textContent = "🔊 Listen and find:";
+      generateOptions(current, "image");
+      setTimeout(playWordSound, 500);
+      break;
+    case "DICTATION":
+      ui.q.textContent = "🔊 Listen and write:";
+      ui.input.classList.remove("hidden");
+      ui.checkBtn.classList.remove("hidden");
+      setTimeout(playWordSound, 500);
+      break;
+    case "TRUE_FALSE":
+      // FIX YES/NO: Garantizar que si es falso, la palabra sea distinta
+      let isCorrectTF = Math.random() > 0.5;
+      let displayWord;
+      if (isCorrectTF) {
+          displayWord = current.en;
+      } else {
+          let otherOptions = currentList.filter(v => v.en !== current.en);
+          displayWord = otherOptions[Math.floor(Math.random() * otherOptions.length)].en;
+      }
+      
+      ui.q.textContent = `Is this a ${displayWord}?`;
+      showImage(current.img);
+      ui.options.classList.remove("hidden");
+      ui.options.innerHTML = `
+        <button class="option-btn" onclick="handleTrueFalse(true, ${isCorrectTF})">YES ✅</button>
+        <button class="option-btn" onclick="handleTrueFalse(false, ${isCorrectTF})">NO ❌</button>
+      `;
+      break;
+    case "ODD_ONE_OUT":
+      setupOddOneOut();
+      break;
+    case "VOWEL_ZAP":
+      ui.q.textContent = "Zap the missing vowels!";
+      showImage(current.img);
+      setupVowelZap(current.en);
+      break;
+  }
+}
+
+/**************** LÓGICAS DE ACTIVIDADES ****************/
+
+function handleTrueFalse(userChoice, actualValue) {
+    if(userChoice === actualValue) handleSuccess();
+    else handleFail();
+}
+
+function setupOddOneOut() {
+    ui.q.textContent = "Which word is DIFFERENT?";
+    let targetCat = current.cat;
+    let same = vocab.filter(v => v.cat === targetCat);
+    let diff = vocab.filter(v => v.cat !== targetCat);
+    if(same.length < 3) { next(); return; }
+    let chosenSame = same.sort(() => 0.5 - Math.random()).slice(0, 3);
+    let chosenDiff = diff[Math.floor(Math.random() * diff.length)];
+    let finalFour = [...chosenSame, chosenDiff].sort(() => 0.5 - Math.random());
+    ui.options.classList.remove("hidden");
+    finalFour.forEach(o => {
+        let btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = o.en;
+        btn.onclick = () => { if(o.cat !== targetCat) handleSuccess(); else handleFail(); };
+        ui.options.appendChild(btn);
+    });
+}
+
+function setupVowelZap(word) {
+    ui.scrambleArea.classList.remove("hidden");
+    ui.slots.innerHTML = ""; ui.bank.innerHTML = "";
+    zapCurrentProgress = word.replace(/[AEIOU]/g, "_");
+    zapCurrentProgress.split("").forEach(char => {
+        let slot = document.createElement("div");
+        slot.className = "tile"; slot.textContent = char;
+        ui.slots.appendChild(slot);
+    });
+    ["A", "E", "I", "O", "U"].forEach(v => {
+        let tile = document.createElement("div");
+        tile.className = "tile"; tile.textContent = v;
+        tile.onclick = () => checkVowelZap(v, word);
+        ui.bank.appendChild(tile);
+    });
+}
+
+function checkVowelZap(vowel, original) {
+    let firstGap = zapCurrentProgress.indexOf("_");
+    if(firstGap === -1) return;
+    if(original[firstGap] === vowel) {
+        let arr = zapCurrentProgress.split("");
+        arr[firstGap] = vowel;
+        zapCurrentProgress = arr.join("");
+        ui.slots.children[firstGap].textContent = vowel;
+        playSound("pop");
+        if(!zapCurrentProgress.includes("_")) setTimeout(handleSuccess, 500);
+    } else { handleFail(); }
+}
+
+/**************** FUNCIONES GENERALES ****************/
+
+function finishGame() {
+    resetUI();
+    updateStats();
+    ui.q.innerHTML = "🏆 CONGRATULATIONS! 🏆<br>You reached 500 points!";
+    ui.feedback.textContent = "Game Complete!";
+    ui.feedback.style.color = "#4caf50";
+    document.querySelectorAll(".action-btn").forEach(b => b.classList.add("hidden"));
+    ui.playAgainBtn.classList.remove("hidden");
+    fireConfetti();
+}
+
+function setupScramble(word) {
+    ui.scrambleArea.classList.remove("hidden");
+    scrambleAnswer = []; ui.slots.innerHTML = ""; ui.bank.innerHTML = "";
+    let letters = word.split('').sort(() => 0.5 - Math.random());
+    letters.forEach((char) => {
+        let tile = document.createElement("div");
+        tile.className = "tile"; tile.textContent = char;
+        tile.onclick = () => moveToSlot(tile, char);
+        ui.bank.appendChild(tile);
+    });
+    ui.checkBtn.classList.remove("hidden");
+}
+
+function moveToSlot(tile, char) {
+    ui.slots.appendChild(tile);
+    scrambleAnswer.push(char);
+    tile.onclick = () => moveToBank(tile, char);
+    playSound("pop");
+}
+
+function moveToBank(tile, char) {
+    ui.bank.appendChild(tile);
+    const idx = scrambleAnswer.indexOf(char);
+    if (idx > -1) scrambleAnswer.splice(idx, 1);
+    tile.onclick = () => moveToSlot(tile, char);
+}
+
+function checkAnswer() {
+  let val = (mode === "SCRAMBLE") ? scrambleAnswer.join("") : ui.input.value.trim().toUpperCase();
+  if(!val) return;
+  if(val.toUpperCase() === current.en.toUpperCase()) handleSuccess();
+  else handleFail();
+}
+
+function checkOption(selected) {
+  if(selected.toUpperCase() === current.en.toUpperCase()) handleSuccess();
+  else handleFail();
+}
+
+function handleSuccess() {
+  ui.feedback.textContent = "✅ Excellent!";
+  ui.feedback.style.color = "#4caf50";
+  playSound("success");
+  fireConfetti();
+  state.streak++; state.correct++; 
+  state.points += 10;
+  state.level = Math.floor(state.points / 100) + 1;
+  save(); updateStats();
+  setTimeout(next, 1500);
+}
+
+function handleFail() {
+  ui.feedback.textContent = `❌ It was: ${current.en}`;
+  ui.feedback.style.color = "#ef5350";
+  playSound("error");
+  ui.app.classList.add("shake-anim");
+  setTimeout(()=>ui.app.classList.remove("shake-anim"), 400);
+  state.streak = 0; save(); updateStats();
+}
+
+function skip() {
+  ui.feedback.textContent = `Skipped. It was: ${current.en}`;
+  ui.feedback.style.color = "orange";
+  playWordSound();
+  state.streak = 0; save(); updateStats();
+  setTimeout(next, 2000);
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else if (document.exitFullscreen) document.exitFullscreen();
+}
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    if (type === "success") {
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    } else if (type === "error") {
+        osc.type = "sawtooth"; osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    } else if (type === "pop") {
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    }
+}
+
+function playWordSound() {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(current.en);
+    u.lang = "en-GB"; u.rate = 0.9;
+    speechSynthesis.speak(u);
+}
+
+function speakCurrent() { playWordSound(); }
+
+function fireConfetti() {
+    for(let i=0; i<30; i++) {
+        const c = document.createElement("div");
+        c.className = "confetti";
+        c.style.background = `hsl(${Math.random()*360}, 100%, 50%)`;
+        c.style.left = Math.random()*100 + "vw";
+        c.style.top = "-10px";
+        c.style.animationDuration = (Math.random()*2 + 1) + "s";
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(), 3000);
+    }
+}
+
+function resetUI() {
+    ui.feedback.textContent = ""; ui.input.value = "";
+    ui.img.classList.add("hidden"); ui.input.classList.add("hidden");
+    ui.scrambleArea.classList.add("hidden"); ui.options.classList.add("hidden");
+    ui.checkBtn.classList.add("hidden"); ui.options.innerHTML = "";
+    ui.playAgainBtn.classList.add("hidden");
+}
+
+function showImage(content) {
+    ui.img.classList.remove("hidden");
+    if(content.includes(".png")) ui.img.innerHTML = `<img src="${content}">`;
+    else ui.img.innerHTML = `<span class="emoji">${content}</span>`;
+}
+
+function generateOptions(target, type) {
+    let pool = (mode === "LISTEN_MATCH" && currentList.length >= 4) ? currentList : vocab;
+    let opts = [target];
+    while(opts.length < 4) {
+        let r = pool[Math.floor(Math.random()*pool.length)];
+        if(!opts.includes(r)) opts.push(r);
+    }
+    opts.sort(()=>0.5-Math.random());
+    ui.options.classList.remove("hidden");
+    opts.forEach(o => {
+        let btn = document.createElement("div");
+        if(type==="text") { btn.className = "option-btn"; btn.textContent = o.en; }
+        else {
+            btn.className = "image-option";
+            if(o.img.includes(".png")) btn.innerHTML = `<img src="${o.img}">`;
+            else btn.innerHTML = `<span style="font-size:3rem">${o.img}</span>`;
+        }
+        btn.onclick = () => checkOption(o.en);
+        ui.options.appendChild(btn);
+    });
+}
+
+function giveHint() {
+    if (mode === "WRITE_IMG" || mode === "TRANSLATE" || mode === "DICTATION") {
+        ui.input.value = current.en.charAt(0); ui.input.focus();
+    } else { alert("The word starts with: " + current.en.charAt(0)); }
+}
+
+function updateStats() {
+    document.getElementById("statLevel").textContent = state.level;
+    document.getElementById("statStreak").textContent = state.streak;
+    document.getElementById("statPoints").textContent = state.points;
+    ui.progressFill.style.width = (state.points % 100) + "%";
+}
+
+function save(){ localStorage.setItem("funlessons_v11", JSON.stringify(state)); }
+function resetGameAction(){ localStorage.removeItem("funlessons_v11"); location.reload(); }
+
+let clicks = 0;
+function handleSecretClick() {
+    clicks++;
+    if(clicks === 3) {
+        document.getElementById("tCorrect").textContent=state.correct;
+        document.getElementById("tStreak").textContent=state.streak;
+        document.getElementById("teacherModal").style.display="flex"; clicks = 0;
+    }
+}
+
+next();
 </script>
 </body>
 </html>
