@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FunLessons – Flashcards 2 (Corrected)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<style>
+/* --- ESTILOS VISUALES --- */
+:root {
+    --primary: #ff7043;
+    --secondary: #ffca28;
+    --accent: #26a69a;
+    --bg-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    padding: 15px;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.app {
+    width: 100%;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(255, 112, 67, 0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background: var(--primary);
+    color: #fff;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; margin: 0; }
+
+.controls-top {
+    padding: 15px;
+    background: #fff;
+    border-bottom: 2px solid #eee;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+}
+select {
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: 2px solid var(--accent);
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--accent);
+    outline: none;
+    cursor: pointer;
+    background: #e0f2f1;
+}
+
+/* --- ESCENARIO DE LA FLASHCARD --- */
+.scene {
+    width: 100%;
+    height: 350px;
+    perspective: 1000px;
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    width: 280px;
+    height: 320px;
+    position: relative;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.card.is-flipped { transform: rotateY(180deg); }
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    border: 4px solid #fff;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.card-face.front { background: #fff; border-color: var(--secondary); }
+.card-face.back { background: var(--accent); color: white;
+transform: rotateY(180deg); border-color: var(--accent); }
+
+.emoji-img { 
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8rem; 
+    line-height: 1;
+}
+
+.emoji-img img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+}
+
+.word-text { font-size: 2.5rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; text-align: center;
+}
+.tap-hint { font-size: 0.9rem; color: #aaa; margin-top: 10px; opacity: 0.7; }
+.tap-hint.white { color: rgba(255,255,255,0.8);
+}
+
+.nav-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: #f9f9f9;
+}
+
+.nav-btn {
+    background: white;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.nav-btn:disabled { border-color: #ccc; color: #ccc; }
+.counter { font-size: 1.1rem;
+font-weight: bold; color: #777; background: #eee; padding: 5px 15px; border-radius: 15px; }
+
+.sound-btn-small {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid #fff;
+    color: #fff;
+    border-radius: 50%;
+    width: 45px; height: 45px;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <header><div class="logo">⚡ Flashcards 3 <span>🇬🇧</span></div></header>
+
+    <div class="controls-top">
+        <label style="font-weight:bold; color:#666;">Topic:</label>
+        <select id="categorySelect" onchange="changeCategory()">
+            <option value="ALL">🌟 Mix (All)</option>
+            <option value="DAYS">🗓️ Days</option>
+            <option value="ROUTINES">⏰ Routines</option>
+            <option value="TRANSPORT">🚗 Transport</option>
+            <option value="SUBJECTS">📚 Subjects</option>
+            <option value="TOWN">🏙️ Town</option>
+            <option value="ANIMALS">🦁 Animals</option>
+            <option value="ANIMALS_BODY">🦴 Animals body</option>
+            <option value="ACTIONS">🏃 Actions</option>
+            <option value="HOBBIES">🎨 Hobbies</option>
+            <option value="FOOD">🍎 Food</option>
+        </select>
+    </div>
+
+    <div class="scene">
+        <div class="card" id="flashcard" onclick="flipCard()">
+            <div class="card-face front">
+                <div class="emoji-img" id="cardImg">❓</div>
+                <div class="tap-hint">👆 Tap to flip</div>
+            </div>
+            <div class="card-face back">
+                <div class="word-text" id="cardWord">WORD</div>
+                <button class="sound-btn-small" onclick="event.stopPropagation(); playCurrentAudio()">🔊</button>
+                <div class="tap-hint white">👆 Tap to flip back</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" onclick="prevCard()">⬅️</button>
+        <div class="counter" id="counterDisplay">1 / 10</div>
+        <button class="nav-btn" id="nextBtn" onclick="nextCard()">➡️</button>
+    </div>
+</div>
+
+<script>
+const vocab = [
+    // DAYS
+    {en:"MONDAY", img:"Monday.png", cat:"DAYS", isImage: true},
+    {en:"TUESDAY", img:"Tuesday.png", cat:"DAYS", isImage: true},
+    {en:"WEDNESDAY", img:"Wednesday.png", cat:"DAYS", isImage: true},
+    {en:"THURSDAY", img:"Thursday.png", cat:"DAYS", isImage: true},
+    {en:"FRIDAY", img:"Friday.png", cat:"DAYS", isImage: true},
+    {en:"SATURDAY", img:"Saturday.png", cat:"DAYS", isImage: true},
+    {en:"SUNDAY", img:"Sunday.png", cat:"DAYS", isImage: true},
+
+    // ROUTINES
+    {en:"GET UP", img:"get up.png", cat:"ROUTINES", isImage: true},
+    {en:"GO HOME", img:"go home.png", cat:"ROUTINES", isImage: true},
+    {en:"GO TO BED", img:"go to bed.png", cat:"ROUTINES", isImage: true},
+    {en:"GO TO SCHOOL", img:"go to school.png", cat:"ROUTINES", isImage: true},
+    {en:"HAVE A SHOWER", img:"have a shower.png", cat:"ROUTINES", isImage: true},
+    {en:"HAVE BREAKFAST", img:"have breakfast.png", cat:"ROUTINES", isImage: true},
+    {en:"HAVE DINNER", img:"have dinner.png", cat:"ROUTINES", isImage: true},
+    {en:"HAVE LUNCH", img:"have lunch.png", cat:"ROUTINES", isImage: true},
+
+    // TRANSPORT
+    {en:"BIKE", img:"🚲", cat:"TRANSPORT"},
+    {en:"CAR", img:"🚗", cat:"TRANSPORT"},
+    {en:"BUS", img:"🚌", cat:"TRANSPORT"},
+    {en:"TRAIN", img:"🚆", cat:"TRANSPORT"},
+    {en:"TAXI", img:"🚕", cat:"TRANSPORT"},
+    {en:"PLANE", img:"✈️", cat:"TRANSPORT"},
+    {en:"HELICOPTER", img:"🚁", cat:"TRANSPORT"},
+
+    // SUBJECTS
+    {en:"ART", img:"🎨", cat:"SUBJECTS"},
+    {en:"ENGLISH", img:"english.png", cat:"SUBJECTS", isImage: true},
+    {en:"IT", img:"💻", cat:"SUBJECTS"},
+    {en:"MATHS", img:"🔢", cat:"SUBJECTS"},
+    {en:"MUSIC", img:"🎵", cat:"SUBJECTS"},
+    {en:"PE", img:"⚽", cat:"SUBJECTS"},
+    {en:"SCIENCE", img:"🧪", cat:"SUBJECTS"},
+    {en:"SPANISH", img:"spanish.png", cat:"SUBJECTS", isImage: true},
+
+    // TOWN
+    {en:"CITY", img:"city.png", cat:"TOWN", isImage: true},
+    {en:"VILLAGE", img:"village.png", cat:"TOWN", isImage: true},
+    {en:"TOWN", img:"town.png", cat:"TOWN", isImage: true},
+    {en:"POST OFFICE", img:"post office.png", cat:"TOWN", isImage: true},
+    {en:"PARK", img:"park.png", cat:"TOWN", isImage: true},
+    {en:"HOUSE", img:"🏠", cat:"TOWN"},
+    {en:"CINEMA", img:"🎬", cat:"TOWN"},
+    {en:"FIRE STATION", img:"🚒", cat:"TOWN"},
+    {en:"MUSEUM", img:"🏛️", cat:"TOWN"},
+    {en:"HOSPITAL", img:"🏥", cat:"TOWN"},
+    {en:"SHOPPING CENTRE", img:"🛍️", cat:"TOWN"},
+    {en:"SWIMMING POOL", img:"🏊", cat:"TOWN"},
+    {en:"TRAIN STATION", img:"🚉", cat:"TOWN"},
+    {en:"ZOO", img:"🦒", cat:"TOWN"},
+    {en:"SCHOOL", img:"🏫", cat:"TOWN"},
+    {en:"SUPERMARKET", img:"🛒", cat:"TOWN"},
+    {en:"HOTEL", img:"🏨", cat:"TOWN"},
+    {en:"BEACH", img:"🏖️", cat:"TOWN"},
+    {en:"LIBRARY", img:"📚", cat:"TOWN"},
+
+    // ANIMALS
+    {en:"OSTRICH", img:"ostrich.png", cat:"ANIMALS", isImage: true},
+    {en:"CROCODILE", img:"🐊", cat:"ANIMALS"},
+    {en:"ELEPHANT", img:"🐘", cat:"ANIMALS"},
+    {en:"FLAMINGO", img:"🦩", cat:"ANIMALS"},
+    {en:"KANGAROO", img:"🦘", cat:"ANIMALS"},
+    {en:"LION", img:"🦁", cat:"ANIMALS"},
+    {en:"MONKEY", img:"🐒", cat:"ANIMALS"},
+    {en:"TIGER", img:"🐅", cat:"ANIMALS"},
+
+    // ANIMALS BODY
+    {en:"BEAK", img:"beak.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"CLAWS", img:"claws.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"FUR", img:"fur.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"TAIL", img:"tail.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"TEETH", img:"teeth.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"WINGS", img:"wing.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"LEGS", img:"legs.png", cat:"ANIMALS_BODY", isImage: true},
+    {en:"EARS", img:"ears.png", cat:"ANIMALS_BODY", isImage: true},
+
+    // ACTIONS
+    {en:"EAT", img:"eat.png", cat:"ACTIONS", isImage: true},
+    {en:"DRINK", img:"drink.png", cat:"ACTIONS", isImage: true},
+    {en:"JUMP", img:"jump.png", cat:"ACTIONS", isImage: true},
+    {en:"FLY", img:"fly.png", cat:"ACTIONS", isImage: true},
+    {en:"CLIMB", img:"🧗", cat:"ACTIONS"},
+    {en:"SWIM", img:"🏊", cat:"ACTIONS"},
+    {en:"RUN", img:"🏃", cat:"ACTIONS"},
+    {en:"WALK", img:"🚶", cat:"ACTIONS"},
+
+    // HOBBIES
+    {en:"PLAYING THE RECORDER", img:"playing the recorder.png", cat:"HOBBIES", isImage: true},
+    {en:"READING COMICS", img:"reading comics.png", cat:"HOBBIES", isImage: true},
+    {en:"USING THE INTERNET", img:"using internet.png", cat:"HOBBIES", isImage: true},
+    {en:"MAKING MODELS", img:"making models.png", cat:"HOBBIES", isImage: true},
+    {en:"DOING EXERCISE", img:"🏋️", cat:"HOBBIES"},
+    {en:"GOING TO THE PARK", img:"🌳", cat:"HOBBIES"},
+    {en:"LISTENING TO MUSIC", img:"🎧", cat:"HOBBIES"},
+    {en:"ROLLERBLADING", img:"🛼", cat:"HOBBIES"},
+    {en:"WATCHING TV", img:"📺", cat:"HOBBIES"},
+    {en:"DANCING", img:"💃", cat:"HOBBIES"},
+    {en:"DOING KARATE", img:"🥋", cat:"HOBBIES"},
+    {en:"JUGGLING", img:"🤹", cat:"HOBBIES"},
+    {en:"PAINTING", img:"🎨", cat:"HOBBIES"},
+    {en:"PLAYING THE GUITAR", img:"🎸", cat:"HOBBIES"},
+    {en:"RIDING A BIKE", img:"🚲", cat:"HOBBIES"},
+    {en:"SINGING", img:"🎤", cat:"HOBBIES"},
+
+    // FOOD
+    {en:"YOGURT", img:"yogurt.png", cat:"FOOD", isImage: true},
+    {en:"BREAD", img:"🍞", cat:"FOOD"},
+    {en:"CEREAL", img:"cereal.png", cat:"FOOD", isImage: true},
+    {en:"EGGS", img:"eggs.png", cat:"FOOD", isImage: true},
+    {en:"HAM", img:"ham.png", cat:"FOOD", isImage: true},
+    {en:"RICE", img:"🍚", cat:"FOOD"},
+    {en:"SAUSAGES", img:"sausages.png", cat:"FOOD", isImage: true},
+    {en:"SPAGHETTI", img:"🍝", cat:"FOOD"},
+    {en:"VEGETABLES", img:"vegetables.png", cat:"FOOD", isImage: true},
+    {en:"BROCCOLI", img:"🥦", cat:"FOOD"},
+    {en:"CAKE", img:"🍰", cat:"FOOD"},
+    {en:"CHEESE", img:"🧀", cat:"FOOD"},
+    {en:"CHICKEN", img:"chicken.png", cat:"FOOD", isImage: true},
+    {en:"FISH", img:"🐟", cat:"FOOD"},
+    {en:"FRUIT", img:"🍎", cat:"FOOD"},
+    {en:"MEAT", img:"🥩", cat:"FOOD"},
+    {en:"SALAD", img:"🥗", cat:"FOOD"},
+    {en:"SOUP", img:"soup.png", cat:"FOOD", isImage: true},
+    {en:"APPLE", img:"🍎", cat:"FOOD"},
+    {en:"BANANA", img:"🍌", cat:"FOOD"},
+    {en:"ORANGE", img:"🍊", cat:"FOOD"},
+    {en:"PEAR", img:"🍐", cat:"FOOD"},
+    {en:"STRAWBERRY", img:"🍓", cat:"FOOD"},
+    {en:"JUICE", img:"🧃", cat:"FOOD"},
+    {en:"MILK", img:"🥛", cat:"FOOD"},
+    {en:"WATER", img:"💧", cat:"FOOD"},
+    {en:"CARROTS", img:"🥕", cat:"FOOD"},
+    {en:"CAULIFLOWER", img:"cauliflower.png", cat:"FOOD", isImage: true},
+    {en:"PEAS", img:"🫛", cat:"FOOD"}
+];
+
+let currentList = [], currentIndex = 0, isFlipped = false;
+const ui = {
+    card: document.getElementById("flashcard"),
+    img: document.getElementById("cardImg"),
+    word: document.getElementById("cardWord"),
+    counter: document.getElementById("counterDisplay"),
+    prevBtn: document.getElementById("prevBtn"),
+    nextBtn: document.getElementById("nextBtn")
+};
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function changeCategory() {
+    const cat = document.getElementById("categorySelect").value;
+    let tempList = (cat === "ALL") ? [...vocab] : vocab.filter(item => item.cat === cat);
+    currentList = shuffleArray(tempList);
+    currentIndex = 0;
+    resetCardFace();
+    updateUI();
+}
+
+function updateUI() {
+    if(currentList.length === 0) return;
+    const item = currentList[currentIndex];
+    if (item.isImage) {
+        ui.img.innerHTML = `<img src="${item.img}" alt="${item.en}">`;
+    } else {
+        ui.img.innerHTML = item.img;
+    }
+    ui.word.textContent = item.en;
+    ui.counter.textContent = `${currentIndex + 1} / ${currentList.length}`;
+    ui.prevBtn.disabled = (currentIndex === 0);
+    ui.nextBtn.disabled = (currentIndex === currentList.length - 1);
+}
+
+function flipCard() {
+    isFlipped = !isFlipped;
+    ui.card.classList.toggle("is-flipped", isFlipped);
+    if(isFlipped) setTimeout(playCurrentAudio, 200);
+}
+
+function resetCardFace() { isFlipped = false; ui.card.classList.remove("is-flipped"); }
+function nextCard() { if(currentIndex < currentList.length - 1) { currentIndex++; resetCardFace(); setTimeout(updateUI, 150); } }
+function prevCard() { if(currentIndex > 0) { currentIndex--; resetCardFace(); setTimeout(updateUI, 150); } }
+
+function playCurrentAudio() {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentList[currentIndex].en);
+    utterance.lang = "en-GB"; utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+}
+
+changeCategory();
+</script>
+</body>
+</html>
